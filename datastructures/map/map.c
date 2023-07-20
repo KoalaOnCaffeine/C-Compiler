@@ -57,8 +57,10 @@ void remove_entry(Map *map, void *key, void *value) {
     if (bucket->length == 0) return;
 
     // Handle the head separately
-    if (((Entry *) bucket->head->value)->key == key && ((Entry *) bucket->head->value)->value == value)
+    if (((Entry *) bucket->head->value)->key == key && ((Entry *) bucket->head->value)->value == value) {
         remove_at_index(bucket, 0);
+        return;
+    }
 
     Node *prev = bucket->head;
 
