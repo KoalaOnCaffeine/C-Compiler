@@ -74,7 +74,7 @@ void set_index(LinkedList *linkedList, void *value, unsigned int index) {
     current->value = value;
 }
 
-int remove(LinkedList *linkedList, void *value) {
+int remove_value(LinkedList *linkedList, void *value) {
     if (linkedList->length == 0) return 0;
     unsigned int removed = 0;
 

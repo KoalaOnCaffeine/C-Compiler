@@ -34,7 +34,7 @@ void insert(LinkedList *linkedList, void *value, unsigned int index);
 
 void set_index(LinkedList *linkedList, void *value, unsigned int index);
 
-int remove(LinkedList *linkedList, void *value); // Returns whether it was removed
+int remove_value(LinkedList *linkedList, void *value); // Returns whether it was removed
 
 int remove_at_index(LinkedList *linkedList, unsigned int index); // Returns whether it was removed
 
