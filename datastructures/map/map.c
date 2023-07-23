@@ -9,14 +9,14 @@
 Map *create_map(long(*hash)(void *)) {
     Map *map = malloc(sizeof(Map));
     map->capacity = DEFAULT_MAP_CAPACITY;
-    map->buckets = calloc(map->capacity, sizeof(Bucket *));
+    map->buckets = calloc(map->capacity, sizeof(LinkedList *));
     map->hash = hash;
     return map;
 }
 
 void delete_map(Map *map) {
     for (unsigned int i = 0, j = map->capacity; i < j; ++j) {
-        delete_bucket(map->buckets[i]);
+        delete_linked_list(map->buckets[i]);
     }
     free(map->buckets);
     free(map);
@@ -26,21 +26,24 @@ void put(Map *map, void *key, void *value) {
     long hash = map->hash(key);
     unsigned long index = hash % map->capacity;
 
-    if (map->buckets[index] == NULL) map->buckets[index] = create_bucket();
+    if (map->buckets[index] == NULL) map->buckets[index] = create_linked_list();
 
-    Bucket *bucket = map->buckets[index];
+    LinkedList *bucket = map->buckets[index];
     Entry *entry = create_entry(key, value);
-    add_entry(bucket, entry);
+    append(bucket, entry);
 }
 
 void *get(Map *map, void *key) {
     long hash = map->hash(key);
     unsigned long index = hash % map->capacity;
-    Bucket *bucket = map->buckets[index];
-    if (bucket->count == 0) return NULL;
+    LinkedList *bucket = map->buckets[index];
+    if (bucket->length == 0) return NULL;
 
-    for (unsigned int i = 0; i < bucket->count; ++i) {
-        if (bucket->entries[i]->key == key) return bucket->entries[i]->value;
+    Node *current = bucket->head;
+
+    while (current != NULL) {
+        if (((Entry *) current->value)->key == key) return (void *) ((Entry *) current->value)->value;
+        current = current->next;
     }
     return NULL;
 }
@@ -48,22 +51,26 @@ void *get(Map *map, void *key) {
 void remove_entry(Map *map, void *key, void *value) {
     long hash = map->hash(key);
     unsigned long index = hash % map->capacity;
-    Bucket *bucket = map->buckets[index];
+    LinkedList *bucket = map->buckets[index];
 
     if (bucket == NULL) return;
+    if (bucket->length == 0) return;
 
-    unsigned int i = 0;
-    for (; i < bucket->count; ++i) {
-        if (bucket->entries[i]->key == key && bucket->entries[i]->value == value) {
-            Entry *entry = bucket->entries[i];
-            delete_entry(entry);
-            break;
+    // Handle the head separately
+    if (((Entry *) bucket->head->value)->key == key && ((Entry *) bucket->head->value)->value == value) {
+        remove_at_index(bucket, 0);
+        return;
+    }
+
+    Node *prev = bucket->head;
+
+    while (prev->next != NULL) {
+        if (((Entry *) prev->next->value)->key == key && ((Entry *) prev->next->value)->value == value) {
+            Node *current = prev->next;
+            prev->next = current->next;
+            delete_node(current);
+            --bucket->length;
+            break; // If a pair is found, it is guaranteed to be the only possible pair with the key
         }
     }
-    // Move all entries after the deleted one
-    for (; i < bucket->count - 1; ++i) {
-        bucket->entries[i] = bucket->entries[i + 1];
-    }
-
-    --bucket->count;
 }

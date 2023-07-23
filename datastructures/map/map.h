@@ -3,7 +3,7 @@
 //
 
 #include "entry.h"
-#include "bucket.h"
+#include "../linkedlist/linkedlist.h"
 
 #ifndef DEFAULT_MAP_CAPACITY
 #define DEFAULT_MAP_CAPACITY 16
@@ -19,7 +19,7 @@
 
 typedef struct {
     unsigned int capacity; // The number of buckets in the map
-    Bucket **buckets; // The array of bucket pointers
+    LinkedList **buckets; // The array of bucket pointers
 
     long (*hash)(void *); // A hashing function
 } Map;
