@@ -38,15 +38,15 @@ void *get(Map *map, void *key, int *error) {
     unsigned long index = hash % map->capacity;
     LinkedList *bucket = map->buckets[index];
 
-    Node *current = bucket == NULL ? NULL : bucket->head;
+    Node *current = bucket ? bucket->head : NULL;
 
-    while (current != NULL) {
+    for (; current; current = current->next) {
         if (((Entry *) current->value)->key == key) {
             if (error != NULL) *error = MAP_RETURN_VALUE;
             return (void *) ((Entry *) current->value)->value;
         }
-        current = current->next;
     }
+
     if (error != NULL) *error = MAP_RETURN_NULL;
     return NULL;
 }
