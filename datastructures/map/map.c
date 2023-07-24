@@ -33,18 +33,21 @@ void put(Map *map, void *key, void *value) {
     append(bucket, entry);
 }
 
-void *get(Map *map, void *key) {
+void *get(Map *map, void *key, int *error) {
     long hash = map->hash(key);
     unsigned long index = hash % map->capacity;
     LinkedList *bucket = map->buckets[index];
-    if (bucket->length == 0) return NULL;
 
-    Node *current = bucket->head;
+    Node *current = bucket == NULL ? NULL : bucket->head;
 
     while (current != NULL) {
-        if (((Entry *) current->value)->key == key) return (void *) ((Entry *) current->value)->value;
+        if (((Entry *) current->value)->key == key) {
+            if (error != NULL) *error = MAP_RETURN_VALUE;
+            return (void *) ((Entry *) current->value)->value;
+        }
         current = current->next;
     }
+    if (error != NULL) *error = MAP_RETURN_NULL;
     return NULL;
 }
 

@@ -7,6 +7,8 @@
 
 #ifndef DEFAULT_MAP_CAPACITY
 #define DEFAULT_MAP_CAPACITY 16
+#define MAP_RETURN_VALUE 0
+#define MAP_RETURN_NULL 1
 #endif
 
 #ifndef C_COMPILER_MAP_H
@@ -30,7 +32,7 @@ void delete_map(Map *map);
 
 void put(Map *map, void *key, void *value);
 
-void *get(Map *map, void *key);
+void *get(Map *map, void *key, int *error);
 
 void remove_entry(Map *map, void *key, void *value);
 
