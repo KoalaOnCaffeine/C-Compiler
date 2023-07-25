@@ -36,7 +36,7 @@ void delete_map(Map *map);
 
 void put(Map *map, void *key, void *value);
 
-void *get(Map *map, void *key, int *error);
+int get(Map *map, void *key, void **value);
 
 void remove_entry(Map *map, void *key, void *value);
 
