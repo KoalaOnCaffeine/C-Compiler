@@ -7,8 +7,12 @@
 
 #ifndef DEFAULT_MAP_CAPACITY
 #define DEFAULT_MAP_CAPACITY 16
-#define MAP_RETURN_VALUE 0
-#define MAP_RETURN_NULL 1
+#endif
+#ifndef MAP_RETURN_NULL
+#define MAP_RETURN_NULL 0
+#endif
+#ifndef MAP_RETURN_VALUE
+#define MAP_RETURN_VALUE 1
 #endif
 
 #ifndef C_COMPILER_MAP_H
