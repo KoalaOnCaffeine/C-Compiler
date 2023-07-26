@@ -15,6 +15,7 @@ LinkedList *create_linked_list() {
 }
 
 void delete_linked_list(LinkedList *linkedList) {
+    if (linkedList == NULL) return;
     Node *next = linkedList->head;
     while (next != NULL) {
         Node *current = next;

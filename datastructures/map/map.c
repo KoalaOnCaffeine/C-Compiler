@@ -15,9 +15,9 @@ Map *create_map(long(*hash)(void *)) {
 }
 
 void delete_map(Map *map) {
+    if (map == NULL) return;
     for (unsigned int i = 0, j = map->capacity; i < j; ++i) {
-        if (map->buckets[i] != NULL)
-            delete_linked_list(map->buckets[i]);
+        delete_linked_list(map->buckets[i]);
     }
     free(map->buckets);
     free(map);

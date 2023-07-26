@@ -3,6 +3,7 @@
 //
 
 #include <malloc.h>
+#include <stddef.h>
 #include "entry.h"
 
 Entry *create_entry(void *key, void *value) {
@@ -13,5 +14,5 @@ Entry *create_entry(void *key, void *value) {
 }
 
 void delete_entry(Entry *entry) {
-    free(entry);
+    if (entry != NULL) free(entry);
 }
