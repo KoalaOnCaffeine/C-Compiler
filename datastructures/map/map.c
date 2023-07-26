@@ -34,19 +34,20 @@ void put(Map *map, void *key, void *value) {
     append(bucket, entry);
 }
 
-void *get(Map *map, void *key) {
+int get(Map *map, void *key, void **value) {
     long hash = map->hash(key);
     unsigned long index = hash % map->capacity;
     LinkedList *bucket = map->buckets[index];
-    if (bucket->length == 0) return NULL;
 
-    Node *current = bucket->head;
+    Node *current = bucket ? bucket->head : NULL;
 
-    while (current != NULL) {
-        if (((Entry *) current->value)->key == key) return (void *) ((Entry *) current->value)->value;
-        current = current->next;
+    for (; current; current = current->next) {
+        if (((Entry *) current->value)->key == key) {
+            *value = (void *) ((Entry *) current->value)->value;
+            return MAP_RETURN_VALUE;
+        }
     }
-    return NULL;
+    return MAP_RETURN_NULL;
 }
 
 void remove_entry(Map *map, void *key, void *value) {
