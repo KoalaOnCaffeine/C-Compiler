@@ -6,10 +6,11 @@
 #include <stddef.h>
 #include "map.h"
 
-Map *create_map(long(*hash)(void *)) {
+Map *create_map(int(*equals)(void *, void *), long(*hash)(void *)) {
     Map *map = malloc(sizeof(Map));
     map->capacity = DEFAULT_MAP_CAPACITY;
     map->buckets = calloc(map->capacity, sizeof(LinkedList *));
+    map->equals = equals;
     map->hash = hash;
     return map;
 }
@@ -42,7 +43,7 @@ int get(Map *map, void *key, void **value) {
     Node *current = bucket ? bucket->head : NULL;
 
     for (; current; current = current->next) {
-        if (((Entry *) current->value)->key == key) {
+        if (map->equals(((Entry *) current->value)->key, key)) {
             *value = (void *) ((Entry *) current->value)->value;
             return MAP_RETURN_VALUE;
         }
@@ -50,7 +51,7 @@ int get(Map *map, void *key, void **value) {
     return MAP_RETURN_NULL;
 }
 
-void remove_entry(Map *map, void *key, void *value) {
+void remove_key(Map *map, void *key) {
     long hash = map->hash(key);
     unsigned long index = hash % map->capacity;
     LinkedList *bucket = map->buckets[index];
@@ -61,11 +62,11 @@ void remove_entry(Map *map, void *key, void *value) {
     Node *prev = bucket->head;
 
     // Handle the head separately
-    if (((Entry *) prev->value)->key == key && ((Entry *) prev->value)->value == value) {
+    if (map->equals(((Entry *) prev->value)->key, key)) {
         remove_at_index(bucket, 0);
     } else {
         while (prev->next != NULL) {
-            if (((Entry *) prev->next->value)->key == key && ((Entry *) prev->next->value)->value == value) {
+            if (map->equals(((Entry *) prev->next->value)->key, key)) {
                 Node *current = prev->next;
                 prev->next = current->next;
                 delete_node(current);

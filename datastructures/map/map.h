@@ -27,10 +27,12 @@ typedef struct {
     unsigned int capacity; // The number of buckets in the map
     LinkedList **buckets; // The array of bucket pointers
 
+    int (*equals)(void *, void *);
+
     long (*hash)(void *); // A hashing function
 } Map;
 
-Map *create_map(long(*hash)(void *));
+Map *create_map(int(*equals)(void *, void *), long(*hash)(void *));
 
 void delete_map(Map *map);
 
@@ -38,6 +40,6 @@ void put(Map *map, void *key, void *value);
 
 int get(Map *map, void *key, void **value);
 
-void remove_entry(Map *map, void *key, void *value);
+void remove_key(Map *map, void *key);
 
 #endif //C_COMPILER_MAP_H
