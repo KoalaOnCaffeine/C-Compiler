@@ -56,23 +56,29 @@ void remove_entry(Map *map, void *key, void *value) {
     LinkedList *bucket = map->buckets[index];
 
     if (bucket == NULL) return;
-    if (bucket->length == 0) return;
 
-    // Handle the head separately
-    if (((Entry *) bucket->head->value)->key == key && ((Entry *) bucket->head->value)->value == value) {
-        remove_at_index(bucket, 0);
-        return;
-    }
-
+    // No need to check bucket length, since if the bucket is not null, there must be an entry
     Node *prev = bucket->head;
 
-    while (prev->next != NULL) {
-        if (((Entry *) prev->next->value)->key == key && ((Entry *) prev->next->value)->value == value) {
-            Node *current = prev->next;
-            prev->next = current->next;
-            delete_node(current);
-            --bucket->length;
-            break; // If a pair is found, it is guaranteed to be the only possible pair with the key
+    // Handle the head separately
+    if (((Entry *) prev->value)->key == key && ((Entry *) prev->value)->value == value) {
+        remove_at_index(bucket, 0);
+    } else {
+        while (prev->next != NULL) {
+            if (((Entry *) prev->next->value)->key == key && ((Entry *) prev->next->value)->value == value) {
+                Node *current = prev->next;
+                prev->next = current->next;
+                delete_node(current);
+                --bucket->length;
+                break; // If a pair is found, it is guaranteed to be the only possible pair with the key
+            }
         }
     }
+
+    // Delete the bucket, remove the pointer in the list of buckets
+    if (!bucket->length) {
+        map->buckets[index] = NULL;
+        delete_linked_list(bucket);
+    }
+
 }
