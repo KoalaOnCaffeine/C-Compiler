@@ -51,7 +51,7 @@ int get(Map *map, void *key, void **value) {
     return MAP_RETURN_NULL;
 }
 
-void remove_entry(Map *map, void *key) {
+void remove_key(Map *map, void *key) {
     long hash = map->hash(key);
     unsigned long index = hash % map->capacity;
     LinkedList *bucket = map->buckets[index];

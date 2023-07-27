@@ -40,6 +40,6 @@ void put(Map *map, void *key, void *value);
 
 int get(Map *map, void *key, void **value);
 
-void remove_entry(Map *map, void *key);
+void remove_key(Map *map, void *key);
 
 #endif //C_COMPILER_MAP_H
