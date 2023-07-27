@@ -4,7 +4,6 @@
 
 #include <malloc.h>
 #include <stddef.h>
-#include <stdio.h>
 #include "map.h"
 
 Map *create_map(long(*hash)(void *)) {
