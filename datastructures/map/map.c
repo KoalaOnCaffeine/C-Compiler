@@ -155,3 +155,36 @@ void *add_entry(Bucket *bucket, Entry *entry) {
     } else bucket->head = bucket->tail = entry; // If there is no head, there will be no tail
 
 }
+
+void foreach_key(Map *map, void (for_each)(void *key)) {
+    for (unsigned int i = 0; i < map->capacity; i++) {
+        if (!map->buckets[i]) continue;
+        Entry *cur = map->buckets[i]->head;
+        while (cur) {
+            for_each(cur->key);
+            cur = cur->next;
+        }
+    }
+}
+
+void foreach_value(Map *map, void (for_each)(void *value)) {
+    for (unsigned int i = 0; i < map->capacity; i++) {
+        if (!map->buckets[i]) continue;
+        Entry *cur = map->buckets[i]->head;
+        while (cur) {
+            for_each(cur->value);
+            cur = cur->next;
+        }
+    }
+}
+
+void foreach_entry(Map *map, void(for_each)(void *key, void *value)) {
+    for (unsigned int i = 0; i < map->capacity; i++) {
+        if (!map->buckets[i]) continue;
+        Entry *cur = map->buckets[i]->head;
+        while (cur) {
+            for_each(cur->key, cur->value);
+            cur = cur->next;
+        }
+    }
+}

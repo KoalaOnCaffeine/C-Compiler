@@ -74,4 +74,13 @@ void resize_map(Map *map, unsigned int new_capacity);
 // Recalculate the buckets for each entry in the map
 void rehash(Map *map);
 
+// Run the given function for each key
+void foreach_key(Map *map, void (for_each)(void *key));
+
+// Run the given function for each value
+void foreach_value(Map *map, void (for_each)(void *value));
+
+// Run the given function for each entry
+void foreach_entry(Map *map, void(for_each)(void *key, void *value));
+
 #endif //C_COMPILER_MAP_H
