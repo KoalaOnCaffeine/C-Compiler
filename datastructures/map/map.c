@@ -58,8 +58,6 @@ void put(Map *map, void *key, void *value) {
     unsigned int bucket_index = hash % map->capacity; // Capacity will always be larger than 0
     Bucket *bucket = map->buckets[bucket_index];
 
-    if (!bucket) map->buckets[bucket_index] = bucket = create_bucket();
-
     Entry *entry = find_entry(bucket, map->equalsFunction, key);
     if (entry)
         return (void) (entry->value = value); // Overriding an existing entry, entry count does not increase
@@ -75,7 +73,7 @@ Entry *remove_key(Map *map, void *key) {
     long hash = map->hashFunction(key);
     unsigned int bucket_index = hash % map->capacity;
     Bucket *bucket = map->buckets[bucket_index];
-    if (!bucket || !bucket->head) return 0;
+    if (!bucket->head) return 0;
 
     Entry *entry = bucket->head;
 
@@ -113,7 +111,6 @@ int get(Map *map, void *key, void **value_ptr) {
     long hash = map->hashFunction(key);
     unsigned int bucketIndex = hash % map->capacity;
     Bucket *bucket = map->buckets[bucketIndex];
-    if (!bucket) return 0; // Failure
     Entry *entry = find_entry(bucket, map->equalsFunction, key);
     if (!entry) return 0; // Failure
     *value_ptr = entry->value;
@@ -122,23 +119,22 @@ int get(Map *map, void *key, void **value_ptr) {
 
 void resize_map(Map *map, unsigned int new_capacity) {
     map->buckets = realloc(map->buckets, new_capacity * sizeof(Bucket *));
-    for (unsigned int i = map->capacity; i < new_capacity; i++)
-        map->buckets[i] = 0; // Set new bucket pointers to null
+    for (unsigned int i = map->capacity; i < new_capacity; i++) map->buckets[i] = create_bucket();
     map->capacity = new_capacity;
     rehash(map);
 }
 
 void rehash(Map *map) {
     Bucket **new_buckets = calloc(map->capacity, sizeof(Bucket *));
+    for (unsigned int i = 0; i < map->capacity; i++) new_buckets[i] = create_bucket();
+
     for (unsigned int i = 0; i < map->capacity; i++) {
         Bucket *old_bucket = map->buckets[i];
-        if (!old_bucket) continue;
         Entry *entry = old_bucket->head;
         while (entry) {
             long hash = map->hashFunction(entry->key);
             unsigned int new_bucket_index = hash % map->capacity;
             Bucket *new_bucket = new_buckets[new_bucket_index];
-            if (!new_bucket) new_buckets[new_bucket_index] = new_bucket = create_bucket();
             add_entry(new_bucket, entry);
             entry = entry->next;
         }
@@ -158,7 +154,6 @@ void *add_entry(Bucket *bucket, Entry *entry) {
 
 void foreach_key(Map *map, void (for_each)(void *key)) {
     for (unsigned int i = 0; i < map->capacity; i++) {
-        if (!map->buckets[i]) continue;
         Entry *cur = map->buckets[i]->head;
         while (cur) {
             for_each(cur->key);
@@ -169,7 +164,6 @@ void foreach_key(Map *map, void (for_each)(void *key)) {
 
 void foreach_value(Map *map, void (for_each)(void *value)) {
     for (unsigned int i = 0; i < map->capacity; i++) {
-        if (!map->buckets[i]) continue;
         Entry *cur = map->buckets[i]->head;
         while (cur) {
             for_each(cur->value);
@@ -180,7 +174,6 @@ void foreach_value(Map *map, void (for_each)(void *value)) {
 
 void foreach_entry(Map *map, void(for_each)(void *key, void *value)) {
     for (unsigned int i = 0; i < map->capacity; i++) {
-        if (!map->buckets[i]) continue;
         Entry *cur = map->buckets[i]->head;
         while (cur) {
             for_each(cur->key, cur->value);
