@@ -66,7 +66,10 @@ Entry *remove_key(Map *map, void *key);
 Entry *find_entry(Bucket *bucket, equals_function equalsFunction, void *key); // Helper function
 
 // Add an entry to a bucket
-void *add_entry(Bucket *bucket, Entry *entry);
+void add_entry(Bucket *bucket, Entry *entry);
+
+// Remove an entry from a bucket, handling the special cases where the entry is the head, tail, or both
+void remove_entry(Bucket *bucket, Entry *entry);
 
 // Change the size of the map (note that this should call rehash immediately after resizing)
 void resize_map(Map *map, unsigned int new_capacity);

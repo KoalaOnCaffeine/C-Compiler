@@ -79,16 +79,8 @@ Entry *remove_key(Map *map, void *key) {
 
     while (entry) {
         if (map->equalsFunction(entry->key, key)) {
-            if (entry == bucket->head) bucket->head = entry->next;
-            else entry->prev->next = entry->next;
-            if (entry == bucket->tail) bucket->tail = entry->prev;
-            else entry->next->prev = entry->prev;
+            remove_entry(bucket, entry);
             --map->entry_count;
-
-            // Note that this is equivalent to if(entry count < capacity/4), meaning that less than a quarter is filled
-            // Don't bother resizing below 16?
-            if (4 * map->entry_count < map->capacity && map->capacity > 16)
-                resize_map(map, map->capacity / 2);
             return entry;
         }
         entry = entry->next;
@@ -125,31 +117,35 @@ void resize_map(Map *map, unsigned int new_capacity) {
 }
 
 void rehash(Map *map) {
-    Bucket **new_buckets = calloc(map->capacity, sizeof(Bucket *));
-    for (unsigned int i = 0; i < map->capacity; i++) new_buckets[i] = create_bucket();
-
     for (unsigned int i = 0; i < map->capacity; i++) {
         Bucket *old_bucket = map->buckets[i];
-        Entry *entry = old_bucket->head;
-        while (entry) {
-            long hash = map->hashFunction(entry->key);
+        Entry *cur = old_bucket->head;
+        while (cur) {
+            long hash = map->hashFunction(cur->key);
             unsigned int new_bucket_index = hash % map->capacity;
-            Bucket *new_bucket = new_buckets[new_bucket_index];
-            add_entry(new_bucket, entry);
-            entry = entry->next;
+            if (new_bucket_index != i) {
+                Bucket *new_bucket = map->buckets[new_bucket_index];
+                remove_entry(old_bucket, cur);
+                add_entry(new_bucket, cur);
+            }
+            cur = cur->next;
         }
     }
-    free(map->buckets); // Free the old memory, but do not use delete_bucket, as this will delete the entries too
-    map->buckets = new_buckets;
 }
 
-void *add_entry(Bucket *bucket, Entry *entry) {
+void add_entry(Bucket *bucket, Entry *entry) {
     if (bucket->head) {
         bucket->tail->next = entry;
         entry->prev = bucket->tail;
         bucket->tail = entry;
     } else bucket->head = bucket->tail = entry; // If there is no head, there will be no tail
+}
 
+void remove_entry(Bucket *bucket, Entry *entry) {
+    if (bucket->head == entry) bucket->head = entry->next;
+    else entry->prev->next = entry->next;
+    if (bucket->tail == entry) bucket->tail = entry->prev;
+    else entry->next->prev = entry->prev;
 }
 
 void foreach_key(Map *map, void (for_each)(void *key)) {
